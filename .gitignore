@@ -1,3 +1,6 @@
 *.png
 chromedriver.exe
 *.txt
+*.log
+*.xlsx
+.env.exemplo
