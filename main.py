@@ -13,6 +13,8 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from dotenv import load_dotenv
 import pandas as pd
+import sys
+import pathlib
 
 # -----------------------------------------------------------------------------
 # DOCUMENTAÇÃO: FUNÇÕES DE PREPARAÇÃO
@@ -166,13 +168,28 @@ def executar_automacao(user_email, user_password, lista_chassis):
     options.add_argument('--disable-extensions')
     options.add_argument('--disable-notifications')
     
+    # Tenta baixar automaticamente o chromedriver correspondente ao Chrome instalado.
+    # Se falhar (por exemplo, sem internet), tenta usar um chromedriver local embutido ou na mesma pasta.
     try:
-        service = Service(ChromeDriverManager().install())
+        downloaded_path = ChromeDriverManager().install()
+        service = Service(downloaded_path)
+    except Exception as download_error:
+        # Fallback para chromedriver local (útil quando empacotado sem internet)
+        base_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        local_driver = os.path.join(base_dir, 'chromedriver.exe')
+        if os.path.exists(local_driver):
+            service = Service(local_driver)
+        else:
+            print("Erro ao baixar o chromedriver automaticamente e nenhum chromedriver local encontrado.")
+            print(f"Detalhes: {download_error}")
+            print("Se desejar que o chromedriver seja embutido no executável, coloque um chromedriver.exe na raiz do projeto ou execute o build com acesso à internet.")
+            return
+
+    try:
         driver = webdriver.Chrome(service=service, options=options)
         actions = ActionChains(driver)
     except Exception as e:
         print(f"Erro crítico ao iniciar o WebDriver: {e}")
-        print("Verifique sua conexão com a internet ou permissões de pasta.")
         return # Encerra a função se o driver não puder ser iniciado
 
     # --- Funções de Ação no Navegador ---
@@ -189,7 +206,29 @@ def executar_automacao(user_email, user_password, lista_chassis):
 
     # ... (o resto das suas funções de automação permanecem as mesmas)
     def acessar_contagem_estoque():
-        input("\nAcesse manualmente a tela de contagem de estoque e pressione ENTER para continuar...")
+        # Em vez de usar input() (que depende do console), usamos um dialog Tkinter
+        # Isso funciona tanto quando o script é executado como .py quanto quando empacotado com PyInstaller
+        root_wait = tk.Tk()
+        # Garante que a janela modal apareça acima de outras janelas (ex.: navegador em tela cheia)
+        root_wait.withdraw()
+        try:
+            root_wait.attributes('-topmost', True)
+        except Exception:
+            # Algumas versões de tcl/tk usam wm_attributes
+            try:
+                root_wait.wm_attributes('-topmost', True)
+            except Exception:
+                pass
+        # Usar parent para garantir que o messagebox seja modal e esteja acima
+        messagebox.showinfo("Aguardando ação", "Acesse manualmente a tela de contagem de estoque no navegador e clique em OK para iniciar a inserção de chassis.", parent=root_wait)
+        try:
+            root_wait.attributes('-topmost', False)
+        except Exception:
+            try:
+                root_wait.wm_attributes('-topmost', False)
+            except Exception:
+                pass
+        root_wait.destroy()
 
     def encontrar_campo_chassi():
         estrategias = [

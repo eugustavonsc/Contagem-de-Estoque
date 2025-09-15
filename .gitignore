@@ -1,6 +1,44 @@
+# Images (if you prefer to keep logos, remove these)
 *.png
+
+# ChromeDriver (optional)
 chromedriver.exe
+
+# Text/logs/spreadsheets
 *.txt
 *.log
 *.xlsx
+
+# Env files
+.env
 .env.exemplo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Installer artifacts
+*.msi
+*.exe
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# other
+*.pyo
+*.pyd
