@@ -52,25 +52,4 @@ Solução de problemas
 Script auxiliar
 - Incluí `build_exe.ps1` para automatizar a criação do ambiente e do .exe.
 
-Publicar no GitHub e criar Release
-1. Inicialize o repositório (se ainda não):
-
-```powershell
-git init
-git add .
-git commit -m "Initial commit - ContagemDeEstoque v$(Get-Content VERSION -Raw).Trim()"
-git branch -M main
-git remote add origin <url-do-seu-repo>
-git push -u origin main
-```
-
-2. Criar uma Release (usando GitHub CLI `gh`):
-
-```powershell
-gh release create $(Get-Content VERSION -Raw).Trim() dist\ContagemDeEstoque.exe -t "ContagemDeEstoque $(Get-Content VERSION -Raw).Trim()" -n "Primeira release"
-```
-
-Observações sobre o que subir ao GitHub
-- Não faça commit de: `dist/`, `build/`, `.venv/`, `*.exe`, `.env` (consulte `.gitignore`).
-- Suba código-fonte, scripts de build (`build_exe.ps1`), `requirements.txt`, `README.md` e `VERSION`.
 
